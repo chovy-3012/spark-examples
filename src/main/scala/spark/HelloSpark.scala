@@ -9,7 +9,8 @@ object HelloSpark {
     //由conf初始化sparkcontext
     val sc=new SparkContext(conf);
     //从hdfs地址读取一个文件
-    val textFile=sc.textFile("hdfs://192.168.2.5:9000/zhaowei/pass.txt")
+    val textFile1=sc.textFile("hdfs://192.168.2.5:9000/zhaowei/pass.txt",4)
+    val textFile=textFile1.cache()
     //1.count行数
     val count=textFile.count()
     println("count:"+count)
