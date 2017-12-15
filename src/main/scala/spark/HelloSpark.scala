@@ -1,6 +1,5 @@
 package spark
 
-import org.apache.spark.deploy.yarn.YarnSparkHadoopUtil
 import org.apache.spark.{SparkConf, SparkContext}
 
 object HelloSpark {

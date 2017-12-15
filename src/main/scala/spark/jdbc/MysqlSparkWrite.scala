@@ -10,7 +10,5 @@ object MysqlSparkWrite {
       "driver" -> "com.mysql.jdbc.Driver",
       "dbtable" -> "(select * from device_stat order by createtime limit 100) as aaa",
       "user" -> "root", "password" -> "Zw2051300663211138.")).load()
-    data
-    new DataFrameWriter[DataFrame]()
   }
 }
