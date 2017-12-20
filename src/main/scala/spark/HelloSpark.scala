@@ -18,10 +18,5 @@ object HelloSpark {
     //2.计算单词数
     val flatMapRdd=textFile.flatMap(line=>line.split(" "))
     println("words count:"+flatMapRdd.count())
-    //3.
-    val flatMapRdd1=textFile.flatMap(line=>line.toCharArray)
-    println("char count:"+flatMapRdd1.count())
-    val char=flatMapRdd1.take(100)
-    println(char)
   }
 }
