@@ -18,32 +18,28 @@ object HbaseSparkBulkImport {
     val conf = HBaseConfiguration.create()
     conf.set("hbase.zookeeper.quorum", "ht05")
     conf.set("hbase.zookeeper.property.clientPort", "2181")
-    val tableName = "spark_hbase"
+    val tableName = "spark_test"
     conf.set(TableOutputFormat.OUTPUT_TABLE, tableName)
     val table = new HTable(conf, tableName)
 
-    val job = Job.getInstance(conf)
+    lazy val job = Job.getInstance(conf)
     job.setMapOutputKeyClass(classOf[ImmutableBytesWritable])
     job.setMapOutputValueClass(classOf[KeyValue])
     HFileOutputFormat2.configureIncrementalLoad(job, table)
 
     //从txt写入到hbase
-    val dataRdd = sc.textFile("hdfs://ht05:9000//zhaowei/pass.txt")
-    val rdd = dataRdd.sortBy(x=>x).map(line => {
-      var rowkey: String = ""
-      if (line.length == 0) {
-        rowkey = "1"
-      } else {
-        rowkey = line
-      }
+    val dataRdd = sc.textFile("hdfs://ht05:9000//zhaow/hotels/*")
+    // val dataRdd = sc.makeRDD(1 to 100).map(x => x.toString)
+    val rdd = dataRdd.filter(_.length() > 0).sortBy(x => x, true).map(line => {
+      val rowkey = line
       val kv: KeyValue = new KeyValue(Bytes.toBytes(rowkey), "cf".getBytes(), "name".getBytes(), rowkey.getBytes())
       (new ImmutableBytesWritable(Bytes.toBytes(rowkey)), kv)
     })
-    rdd.saveAsNewAPIHadoopFile("hdfs://ht05:9000/tmp/iteblog", classOf[ImmutableBytesWritable], classOf[KeyValue],
-      classOf[HFileOutputFormat2], conf)
+    rdd.saveAsNewAPIHadoopFile("hdfs://ht05:9000/tmp/test3", classOf[ImmutableBytesWritable], classOf[KeyValue],
+      classOf[HFileOutputFormat2], job.getConfiguration)
 
     //Bulk load Hfiles to Hbase
     val bulkLoader = new LoadIncrementalHFiles(conf)
-    bulkLoader.doBulkLoad(new Path("hdfs://ht05:9000/tmp/iteblog"), table)
+    bulkLoader.doBulkLoad(new Path("hdfs://ht05:9000/tmp/test3"), table)
   }
 }
