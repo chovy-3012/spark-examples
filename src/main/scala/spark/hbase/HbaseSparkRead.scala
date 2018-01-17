@@ -4,7 +4,6 @@ import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.spark._
-import org.apache.spark.sql.SparkSession
 
 
 object HbaseSparkRead {
@@ -26,14 +25,14 @@ object HbaseSparkRead {
 
     //val count = hBaseRDD.count()
     //println(count)
-    //    hBaseRDD.foreach{case (_,result) =>{
-    //      //获取行键
-    //      val key = Bytes.toString(result.getRow)
-    //      //通过列族和列名获取列
-    //      val name = Bytes.toString(result.getValue("cf".getBytes,"name".getBytes))
-    //      println("Row key:"+key+" Name:"+name)
-    //    }}
-    //hBaseRDD.map(x=>Bytes.toString(x._2.getRow)).repartition(1).saveAsTextFile("hdfs://ht05:9000/test1")
+    hBaseRDD.foreach { case (_, result) => {
+      //获取行键
+      val key = Bytes.toString(result.getRow)
+      //通过列族和列名获取列
+      val name = Bytes.toString(result.getValue("cf".getBytes, "name".getBytes))
+      println("Row key:" + key + " Name:" + name)
+    }
+    }
 
     //将hbase数据保存到txt
     hBaseRDD.map(x => Bytes.toString(x._2.getRow)).saveAsTextFile("hdfs://ht05:9000/test1")

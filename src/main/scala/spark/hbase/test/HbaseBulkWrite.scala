@@ -5,12 +5,12 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.hadoop.hbase.mapreduce.TableOutputFormat
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.mapreduce.Job
-import org.apache.spark._
+import org.apache.spark.sql.SparkSession
 
 object HbaseBulkWrite {
   def main(args: Array[String]): Unit = {
-    val sparkConf = new SparkConf().setAppName("HBaseTest").setMaster("local")
-    val sc = new SparkContext(sparkConf)
+    val spark=SparkSession.builder().appName("hbase_regions").getOrCreate()
+    val sc = spark.sparkContext
 
     //hbase信息
     sc.hadoopConfiguration.set("hbase.zookeeper.quorum", "ht05")
