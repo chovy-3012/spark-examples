@@ -29,16 +29,18 @@ object HbaseSparkBulkImport {
 
     //从txt写入到hbase
     val dataRdd = sc.textFile("hdfs://ht05:9000//zhaow/hotels/*")
-    // val dataRdd = sc.makeRDD(1 to 100).map(x => x.toString)
+    //dataRdd的partition数量决定了下面rdd的partition数量，最终也决定了会生成多少个hfile
+    //hbase一个region下面hfile的数量上面默认为32，如果partition数量超过32，这里需要repartition一下
     val rdd = dataRdd.filter(_.length() > 0).sortBy(x => x, true).map(line => {
       val rowkey = line
       val kv: KeyValue = new KeyValue(Bytes.toBytes(rowkey), "cf".getBytes(), "name".getBytes(), rowkey.getBytes())
       (new ImmutableBytesWritable(Bytes.toBytes(rowkey)), kv)
     })
+    //写入到hfile数据
     rdd.saveAsNewAPIHadoopFile("hdfs://ht05:9000/tmp/test3", classOf[ImmutableBytesWritable], classOf[KeyValue],
       classOf[HFileOutputFormat2], job.getConfiguration)
 
-    //Bulk load Hfiles to Hbase
+    //将保存在临时文件夹的hfile数据保存到hbase中
     val bulkLoader = new LoadIncrementalHFiles(conf)
     bulkLoader.doBulkLoad(new Path("hdfs://ht05:9000/tmp/test3"), table)
   }
